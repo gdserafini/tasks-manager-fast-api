@@ -1,2 +1,4 @@
 # tasks-manager-fast-api
-A tasks manager API developed in Python 3 with FastAPI
+
+API - Gerenciador de Tarefas
+Projeto baseado no curso de FastAPI: https://fastapidozero.dunossauro.com/
