@@ -3,3 +3,7 @@ pythonpath = '.'
 addopts = '-p no:warning'
 testpaths = ["tests"]
 asyncio_default_fixture_loop_scope = "function"
+
+[tool.taskipy.tasks]
+run = 'fastapi dev app.py'
+test = 'pytest'
