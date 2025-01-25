@@ -13,7 +13,5 @@ router = APIRouter()
     response_class=JSONResponse,
     response_model=Message
 )
-def root():
-    return {
-        'message': 'Hello world!'
-    }
+def root() -> Message:
+    return Message(message="Hello world!")
