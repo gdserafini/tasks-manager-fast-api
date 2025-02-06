@@ -43,3 +43,11 @@ def test_update_user_returns_user_200(client):
     print(response.json())
     assert response.status_code == HTTPStatus.OK
     assert response.json() == updated_user_response
+
+
+def test_not_found_user_returns_404(client):
+    response = client.get('/user/999999')
+    assert response.status_code == HTTPStatus.NOT_FOUND
+    assert response.json() == {
+        'detail': 'User not found: id = 999999'
+    }
