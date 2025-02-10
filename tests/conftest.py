@@ -1,6 +1,13 @@
 from fastapi.testclient import TestClient
 import pytest
 from app import app
+from src.model.user import table_registy
+from sqlalchemy import create_engine
+from sqlalchemy.orm import Session
+from config.settings import Settings
+
+
+settings = Settings()
 
 
 @pytest.fixture
@@ -31,3 +38,12 @@ def mock_response():
             'id': 2
         }
     ]
+
+
+@pytest.fixture
+def session():
+    engine = create_engine(settings.DATABASE_URL)
+    table_registy.metadata.create_all(engine)
+    with Session(engine) as session:
+        yield session
+    table_registy.metadata.drop_all(engine)
