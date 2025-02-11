@@ -3,6 +3,10 @@ from fastapi import APIRouter
 from src.model.user import User, UserResponse, UserDB
 from src.model.message import Message
 from src.model.exceptions import UserNotFoundException
+from sqlalchemy import create_engine, select
+from sqlalchemy.orm import Session
+from src.model.user import UserModel
+from config.settings import Settings
 
 
 router = APIRouter()
