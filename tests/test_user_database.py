@@ -1,6 +1,5 @@
-from src.model.user import UserModel, table_registy
-from sqlalchemy import create_engine, select
-from sqlalchemy.orm import Session
+from src.model.user import UserModel
+from sqlalchemy import select
 
 
 def test_create_user_db(session):

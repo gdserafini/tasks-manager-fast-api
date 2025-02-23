@@ -4,7 +4,7 @@ from sqlalchemy import func
 from datetime import datetime
         
 
-table_registy = registry()
+table_registry = registry()
 
         
 class User(BaseModel):
@@ -23,7 +23,7 @@ class UserDB(User):
     id: int
 
 
-@table_registy.mapped_as_dataclass
+@table_registry.mapped_as_dataclass
 class UserModel:
     __tablename__ = 'users'
     id: Mapped[int] = mapped_column(
