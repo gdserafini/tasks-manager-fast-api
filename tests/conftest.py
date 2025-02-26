@@ -8,6 +8,7 @@ from config.settings import Settings
 from src.service.session import get_session
 from sqlalchemy.pool import StaticPool
 from src.model.user import UserModel
+from src.service.security import get_password_hash
 
 
 settings = Settings()
@@ -25,14 +26,16 @@ def client(session):
 
 @pytest.fixture
 def user(session):
+    password = 'passwordTest'
     user_mock = UserModel(
         username='test',
         email='email@test.com',
-        password='passwordTest'
+        password=get_password_hash(password)
     )
     session.add(user_mock)
     session.commit()
     session.refresh(user_mock)
+    user_mock.clean_password = password
     return user_mock
 
 
