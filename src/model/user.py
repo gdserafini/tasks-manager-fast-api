@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, ConfigDict
 from sqlalchemy.orm import registry, Mapped, mapped_column
 from sqlalchemy import func
 from datetime import datetime
@@ -17,10 +17,18 @@ class UserResponse(BaseModel):
     id: int
     username: str
     email: EmailStr
+    created_at: datetime
+    model_config = ConfigDict(
+        from_attributes=True, ser_json_timedelta='iso8601'
+    )
 
 
 class UserDB(User):
     id: int
+
+
+class UserList(BaseModel):
+    users: list[UserResponse]
 
 
 @table_registry.mapped_as_dataclass

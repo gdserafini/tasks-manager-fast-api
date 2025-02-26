@@ -1,80 +1,95 @@
 from http import HTTPStatus
 from fastapi import APIRouter
-from src.model.user import User, UserResponse, UserDB
+from src.model.user import User, UserResponse, UserList
 from src.model.message import Message
-from src.model.exceptions import UserNotFoundException
-from sqlalchemy import create_engine, select
+from src.service.user import create_user_service, delete_user_by_id_service, get_all_users_service, get_user_by_id_service, update_user_service
+from src.service.session import get_session
+from fastapi import Depends
 from sqlalchemy.orm import Session
-from src.model.user import UserModel
-from config.settings import Settings
+from src.utils.responses import responses
 
 
 router = APIRouter()
-users_db: list[User] = []
-
-
-def _get_id() -> int:
-    return len(users_db) + 1
-
-
-def validate_user(user_id: int) -> None:
-    if user_id < 1 or user_id > len(users_db):
-        raise UserNotFoundException(user_id=user_id)
 
 
 @router.post(
     '/user', 
     response_model=UserResponse,
-    status_code=HTTPStatus.CREATED)
-def create_user(user: User) -> UserResponse:
-    user_db = UserDB(id=_get_id(), **user.model_dump())
-    users_db.append(user_db)
-    return UserResponse(**user_db.model_dump())
+    status_code=HTTPStatus.CREATED,
+    responses={
+        **responses['bad_request'],
+        **responses['internal_server_error']
+    }
+)
+def create_user(
+    user: User, 
+    session: Session = Depends(get_session)
+) -> UserResponse:
+    result = create_user_service(user, session)
+    return result
 
 
 @router.get(
-        '/users',
-        response_model=list[UserResponse],
-        status_code=HTTPStatus.OK)
-def get_users() -> list[UserResponse]:
-    return [UserResponse(**user.model_dump()) for user in users_db]
+    '/users',
+    response_model=UserList,
+    status_code=HTTPStatus.OK,
+    responses={
+        **responses['bad_request'],
+        **responses['internal_server_error']
+    }
+)
+def get_users(
+    offset: int = 0, limit: int = 100, 
+    session: Session = Depends(get_session)
+) -> list[UserResponse]:
+    users = get_all_users_service(offset, limit, session)
+    return {'users': users}
 
 
 @router.get(
-        '/user/{user_id}',
-        response_model=UserResponse,
-        status_code=HTTPStatus.OK)
-def get_user_by_id(user_id: int) -> UserResponse:
-    validate_user(user_id)
-    user = filter(lambda user: user.id == user_id, users_db).__next__()
-    return UserResponse(**user.model_dump())
+    '/user/{user_id}',
+    response_model=UserResponse,
+    status_code=HTTPStatus.OK,
+    responses={
+        **responses['bad_request'],
+        **responses['internal_server_error']
+    }   
+)
+def get_user_by_id(
+    user_id: int, session: Session = Depends(get_session)
+) -> UserResponse:
+    user = get_user_by_id_service(user_id, session)
+    return user
 
 
 @router.delete(
-        '/user/{user_id}',
-        response_model=Message,
-        status_code=HTTPStatus.OK)
-def get_user_by_id(user_id: int) -> None:
-    validate_user(user_id)
-    users_db.remove(filter(
-        lambda user: user.id == user_id, users_db
-    ).__next__())
-    return {
-        'message': f'User {user_id} deleted successfully'
+    '/user/{user_id}',
+    response_model=Message,
+    status_code=HTTPStatus.OK,
+    responses={
+        **responses['bad_request'],
+        **responses['internal_server_error']
     }
+)
+def delete_user_by_id(
+    user_id: int, session: Session = Depends(get_session)
+) -> Message:
+    result = delete_user_by_id_service(user_id, session)
+    return result
 
 
 @router.put(
-        '/user/{user_id}',
-        response_model=UserResponse,
-        status_code=HTTPStatus.OK)
-def update_user(user_id: int, user: User) -> UserResponse:
-    global users_db
-    validate_user(user_id)
-    users_db = [
-        existing_user 
-        for existing_user in users_db if existing_user.id != user_id
-    ]
-    updated_user = UserDB(id=user_id, **user.model_dump())
-    users_db.append(updated_user)
-    return UserResponse(**updated_user.model_dump())
+    '/user/{user_id}',
+    response_model=UserResponse,
+    status_code=HTTPStatus.OK,
+    responses={
+        **responses['bad_request'],
+        **responses['internal_server_error']
+    } 
+)
+def update_user(
+    user_id: int, user: User, 
+    session: Session = Depends(get_session)
+) -> UserResponse:
+    result = update_user_service(user_id, user, session)
+    return result

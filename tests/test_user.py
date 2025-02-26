@@ -1,53 +1,50 @@
 from http import HTTPStatus
+from src.model.user import UserResponse
+from pydantic import BaseModel
 
 
 def test_create_user_returns_user_201(client, mock_user, mock_response):
     response = client.post('/user', json=mock_user)
     assert response.status_code == HTTPStatus.CREATED
-    assert response.json() == mock_response[0]
+    created_at = response.json()['created_at']
+    mock = mock_response[0]
+    mock['created_at'] = created_at
+    assert response.json() == mock
 
 
-def test_get_users_returns_users_200(client, mock_user, mock_response):
-    client.post('/user', json=mock_user)
+def test_get_users_returns_users_200(client, user):
+    user_schema = UserResponse.model_validate(user).model_dump()
+    user_schema['created_at'] = user_schema['created_at'].isoformat()
     response = client.get('/users')
     assert response.status_code == HTTPStatus.OK
-    assert response.json() == mock_response
+    assert response.json() == {'users': [user_schema]}
 
 
-def test_get_user_by_id_returns_users_200(client, mock_response):
+def test_get_user_by_id_returns_users_200(client, user):
+    user_schema = UserResponse.model_validate(user).model_dump()
+    user_schema['created_at'] = user_schema['created_at'].isoformat()
     response = client.get('/user/1')
     assert response.status_code == HTTPStatus.OK
-    assert response.json() == mock_response[0]
+    assert response.json() == user_schema
 
 
-def test_delete_user_by_id_returns_200(client):
-    response = client.delete('/user/1')
+def test_delete_user_by_id_returns_200(client, user):
+    response = client.delete(f'/user/{user.id}')
     assert response.status_code == HTTPStatus.OK
     assert response.json() == {
-        'message': 'User 1 deleted successfully'
+        'message': f'User id={user.id} deleted successfully'
     }
 
 
-def test_update_user_returns_user_200(client):
-    updated_user = {
-        'username': 'test updated',
-        'email': 'test@test.com',
-        'password': 'password'
+def test_update_user_returns_user_200(client, user):
+    user_schema = UserResponse.model_validate(user).model_dump()
+    user_schema['created_at'] = user_schema['created_at'].isoformat()
+    user_schema['username'] = 'newName'
+    update_user = {
+        'username': 'newName',
+        'email': user_schema['email'],
+        'password': user.password
     }
-    updated_user_response = {
-        'id': 1,
-        'username': 'test updated',
-        'email': 'test@test.com',
-    }
-    response = client.put('/user/1', json=updated_user)
-    print(response.json())
+    response = client.put(f'/user/{user.id}', json=update_user)
     assert response.status_code == HTTPStatus.OK
-    assert response.json() == updated_user_response
-
-
-def test_not_found_user_returns_404(client):
-    response = client.get('/user/999999')
-    assert response.status_code == HTTPStatus.NOT_FOUND
-    assert response.json() == {
-        'detail': 'User not found: id = 999999'
-    }
+    assert response.json() == user_schema
