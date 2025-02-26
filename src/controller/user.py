@@ -2,7 +2,10 @@ from http import HTTPStatus
 from fastapi import APIRouter
 from src.model.user import User, UserResponse, UserList
 from src.model.message import Message
-from src.service.user import create_user_service, delete_user_by_id_service, get_all_users_service, get_user_by_id_service, update_user_service
+from src.service.user import (
+    create_user_service, delete_user_by_id_service, get_all_users_service, 
+    get_user_by_id_service, update_user_service
+)
 from src.service.session import get_session
 from fastapi import Depends
 from sqlalchemy.orm import Session

@@ -4,6 +4,7 @@ from src.model.message import Message
 from src.model.user import User
 from src.model.user import UserModel
 from sqlalchemy.orm import Session
+from src.service.security import get_password_hash
 
 
 def create_user_service(user: User, session: Session) -> UserModel:
@@ -21,7 +22,7 @@ def create_user_service(user: User, session: Session) -> UserModel:
     user_db = UserModel(
         username=user.username,
         email=user.email,
-        password=user.password
+        password=get_password_hash(user.password)
     )
     session.add(user_db)
     session.commit()
@@ -69,7 +70,7 @@ def update_user_service(
     user_db = get_user_by_id_service(user_id, session)
     user_db.username = user.username
     user_db.email = user.email
-    user_db.password = user.password
+    user_db.password = get_password_hash(user.password)
     session.commit()
     session.refresh(user_db)
     return user_db
