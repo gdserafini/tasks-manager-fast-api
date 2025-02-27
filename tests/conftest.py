@@ -75,3 +75,16 @@ def session():
     with Session(engine) as session:
         yield session
     table_registry.metadata.drop_all(engine)
+
+
+@pytest.fixture
+def token(client, user):
+    response = client.post(
+        '/token',
+        data={
+            'username': user.email,
+            'password': user.clean_password
+        }
+    )
+    jwt_token = response.json()['access_token']
+    return jwt_token

@@ -1,11 +1,19 @@
 from zoneinfo import ZoneInfo
 from pwdlib import PasswordHash
 from datetime import datetime, timedelta
-from jwt import encode
+from jwt import decode, encode
+from sqlalchemy import select
 from config.settings import Settings
+from fastapi import Depends
+from fastapi.security import OAuth2PasswordBearer
+from sqlalchemy.orm import Session
+from src.model.exceptions import InvalidLoginException, UserNotFoundException
+from src.model.user import UserModel
+from src.service.session import get_session
 
 
 pwd_context = PasswordHash.recommended()
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl='token')
 
 
 def get_password_hash(password: str) -> str:
@@ -30,3 +38,25 @@ def create_access_token(data: dict) -> str:
         Settings().SECRET_KEY, algorithm=Settings().ALGORITHM
     )
     return token_jwt
+
+
+def get_current_user(
+    session: Session = Depends(get_session),
+    token: str = Depends(oauth2_scheme) 
+) -> UserModel:
+    try:
+        payload = decode(
+            token, Settings().SECRET_KEY, 
+            algorithms=[Settings().ALGORITHM]
+        )
+        email = payload.get('sub')
+        if not email:
+            raise InvalidLoginException(detail='Invalid token')
+        user_db = session.scalar(
+            select(UserModel).where(UserModel.email == email)
+        )
+        if not user_db:
+            raise InvalidLoginException(detail='User not found')
+        return user_db
+    except Exception as e:
+        raise e
