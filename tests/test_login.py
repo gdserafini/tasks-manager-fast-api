@@ -3,7 +3,7 @@ from http import HTTPStatus
 
 def test_login_with_bearer_token(client, user):
     response = client.post(
-        '/token',
+        '/auth/token',
         data={
             'username': user.email,
             'password': user.clean_password

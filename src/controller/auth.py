@@ -1,15 +1,12 @@
 from http import HTTPStatus
 from fastapi import APIRouter
-from fastapi import Depends
 from src.utils.responses import responses
-from fastapi.security import OAuth2PasswordRequestForm
-from src.service.session import get_session
-from sqlalchemy.orm import Session
 from src.model.token import Token
 from src.service.login import login_service
+from src.utils.types import T_OAuth2From, T_Session
 
 
-router = APIRouter()
+router = APIRouter(prefix='/auth', tags=['auth'])
 
 
 @router.post(
@@ -24,9 +21,5 @@ router = APIRouter()
     },
     description='Get a JWT token to authenticate using email and password.'
 )
-def login(
-    form_data: OAuth2PasswordRequestForm = Depends(),
-    session: Session = Depends(get_session)
-) -> Token:
-    token_response = login_service(session, form_data)
-    return token_response
+def login(session: T_Session,form_data: T_OAuth2From) -> Token:
+    return login_service(session, form_data)
