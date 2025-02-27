@@ -61,3 +61,15 @@ def test_update_user_returns_user_200(client, user, token):
     )
     assert response.status_code == HTTPStatus.OK
     assert response.json() == user_schema
+
+
+def test_forbidden_user_operation_403(
+    client, user, other_user, token
+) -> None:
+    user_schema = UserResponse.model_validate(user).model_dump()
+    user_schema['created_at'] = user_schema['created_at'].isoformat()
+    response = client.get(
+        f'/user/{other_user.id}',
+        headers={'Authorization': f'Bearer {token}'}
+    )
+    assert response.status_code == HTTPStatus.FORBIDDEN
