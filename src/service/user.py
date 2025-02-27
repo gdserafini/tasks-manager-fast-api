@@ -1,3 +1,4 @@
+from typing import Any
 from sqlalchemy import select
 from src.model.exceptions import UserAlreadyExistsException, UserNotFoundException
 from src.model.message import Message
@@ -5,6 +6,10 @@ from src.model.user import User
 from src.model.user import UserModel
 from sqlalchemy.orm import Session
 from src.service.security import get_password_hash
+
+
+def query_select(model, bool_test) -> Any:
+    return select(model).where(bool_test)
 
 
 def create_user_service(user: User, session: Session) -> UserModel:
@@ -36,10 +41,9 @@ def get_all_users_service(
     if offset < 0 or limit < 0 or \
             type(offset) != int or type(limit) != int:
         raise ValueError('Invalid params.')
-    users = session.scalars(
+    return session.scalars(
         select(UserModel).offset(offset).limit(limit)
     ).all()
-    return users
 
 
 def get_user_by_id_service(

@@ -16,7 +16,7 @@ def test_get_users_returns_users_200(client, user, token):
     user_schema = UserResponse.model_validate(user).model_dump()
     user_schema['created_at'] = user_schema['created_at'].isoformat()
     response = client.get(
-        '/users',
+        '/user/list',
         headers={'Authorization': f'Bearer {token}'}
     )
     assert response.status_code == HTTPStatus.OK

@@ -35,5 +35,15 @@ responses={
                 }
             }
         }
-    }
+    },
+    'forbidden': {
+        HTTPStatus.FORBIDDEN: {
+            'description': 'User not allowed to acces/use this resource.',
+            'content': {
+                'application/json': {
+                    'example': {'detail': 'User not allowed to acces/use this resource.'}
+                }
+            }
+        }
+    },
 }

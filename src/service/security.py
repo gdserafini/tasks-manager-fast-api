@@ -7,13 +7,13 @@ from config.settings import Settings
 from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
-from src.model.exceptions import InvalidLoginException, UserNotFoundException
+from src.model.exceptions import InvalidLoginException
 from src.model.user import UserModel
 from src.service.session import get_session
 
 
 pwd_context = PasswordHash.recommended()
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl='token')
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl='auth/token')
 
 
 def get_password_hash(password: str) -> str:
@@ -33,11 +33,10 @@ def create_access_token(data: dict) -> str:
         timedelta(minutes=Settings().ACCESS_TOKEN_EXPIRE_MINUTES
     )
     to_encode.update({'exp': expire})
-    token_jwt = encode(
+    return encode(
         to_encode, 
         Settings().SECRET_KEY, algorithm=Settings().ALGORITHM
     )
-    return token_jwt
 
 
 def get_current_user(
