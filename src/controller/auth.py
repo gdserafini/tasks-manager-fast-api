@@ -27,6 +27,6 @@ router = APIRouter()
 def login(
     form_data: OAuth2PasswordRequestForm = Depends(),
     session: Session = Depends(get_session)
-):
+) -> Token:
     token_response = login_service(session, form_data)
     return token_response

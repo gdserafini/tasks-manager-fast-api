@@ -1,5 +1,6 @@
 from http import HTTPStatus
 from fastapi import APIRouter
+from src.model.exceptions import InvalidLoginException
 from src.model.user import User, UserResponse, UserList
 from src.model.message import Message
 from src.service.user import (
@@ -10,6 +11,8 @@ from src.service.session import get_session
 from fastapi import Depends
 from sqlalchemy.orm import Session
 from src.utils.responses import responses
+from src.service.security import get_current_user
+from src.utils.validations import authorize_user
 
 
 router = APIRouter()
@@ -38,12 +41,14 @@ def create_user(
     status_code=HTTPStatus.OK,
     responses={
         **responses['bad_request'],
-        **responses['internal_server_error']
+        **responses['internal_server_error'],
+        **responses['unauthorized']
     }
 )
 def get_users(
     offset: int = 0, limit: int = 100, 
-    session: Session = Depends(get_session)
+    session: Session = Depends(get_session),
+    current_user: dict = Depends(get_current_user)
 ) -> list[UserResponse]:
     users = get_all_users_service(offset, limit, session)
     return {'users': users}
@@ -55,12 +60,15 @@ def get_users(
     status_code=HTTPStatus.OK,
     responses={
         **responses['bad_request'],
-        **responses['internal_server_error']
+        **responses['internal_server_error'],
+        **responses['unauthorized']
     }   
 )
 def get_user_by_id(
-    user_id: int, session: Session = Depends(get_session)
+    user_id: int, session: Session = Depends(get_session),
+    current_user: dict = Depends(get_current_user)
 ) -> UserResponse:
+    authorize_user(current_user.id, user_id)
     user = get_user_by_id_service(user_id, session)
     return user
 
@@ -71,12 +79,15 @@ def get_user_by_id(
     status_code=HTTPStatus.OK,
     responses={
         **responses['bad_request'],
-        **responses['internal_server_error']
+        **responses['internal_server_error'],
+        **responses['unauthorized']
     }
 )
 def delete_user_by_id(
-    user_id: int, session: Session = Depends(get_session)
+    user_id: int, session: Session = Depends(get_session),
+    current_user: dict = Depends(get_current_user)
 ) -> Message:
+    authorize_user(current_user.id, user_id)
     result = delete_user_by_id_service(user_id, session)
     return result
 
@@ -87,12 +98,15 @@ def delete_user_by_id(
     status_code=HTTPStatus.OK,
     responses={
         **responses['bad_request'],
-        **responses['internal_server_error']
+        **responses['internal_server_error'],
+        **responses['unauthorized']
     } 
 )
 def update_user(
-    user_id: int, user: User, 
-    session: Session = Depends(get_session)
+    user_id: int, user_data: User, 
+    session: Session = Depends(get_session),
+    current_user: dict = Depends(get_current_user)
 ) -> UserResponse:
-    result = update_user_service(user_id, user, session)
+    authorize_user(current_user.id, user_id)
+    result = update_user_service(user_id, user_data, session)
     return result
