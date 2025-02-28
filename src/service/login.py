@@ -6,6 +6,7 @@ from src.service.security import verify_password, create_access_token
 from fastapi.security import OAuth2PasswordRequestForm
 from src.model.token import Token
 from http import HTTPStatus
+from jwt.exceptions import ExpiredSignatureError, PyJWTError
 
 
 def login_service(
@@ -27,3 +28,18 @@ def login_service(
             token_type='Bearer',
             access_token=token_jwt
         )
+    
+
+def refresh_access_token_service(user: UserModel) -> Token:
+    try:
+        new_access_token = create_access_token(
+            data={'sub': user.email}
+        )
+        return Token(
+            token_type='Bearer',
+            access_token=new_access_token
+        )
+    except ExpiredSignatureError:
+        raise InvalidLoginException(detail='Expired token.')
+    except PyJWTError:
+        raise InvalidLoginException(detail='Invalid token.')
