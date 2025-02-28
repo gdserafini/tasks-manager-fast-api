@@ -1,6 +1,5 @@
 from http import HTTPStatus
 from src.model.user import UserResponse
-from pydantic import BaseModel
 
 
 def test_create_user_returns_user_201(client, mock_user, mock_response):
@@ -73,3 +72,15 @@ def test_forbidden_user_operation_403(
         headers={'Authorization': f'Bearer {token}'}
     )
     assert response.status_code == HTTPStatus.FORBIDDEN
+
+
+def test_create_user_already_exists(client, user):
+    user_to_create = {
+        'username': user.username,
+        'email': user.email,
+        'password': user.password
+    }
+    response = client.post(
+        '/user', json=user_to_create
+    )
+    assert response.status_code == HTTPStatus.BAD_REQUEST

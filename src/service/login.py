@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from src.service.security import verify_password, create_access_token
 from fastapi.security import OAuth2PasswordRequestForm
 from src.model.token import Token
+from http import HTTPStatus
 
 
 def login_service(
@@ -14,10 +15,12 @@ def login_service(
     user = session.scalar(
         select(UserModel).where(UserModel.email == form_data.username)
     )
-    if not user or not verify_password(
-        form_data.password, user.password
-    ):
-        raise InvalidLoginException()
+    if not user or \
+            not verify_password(form_data.password, user.password):
+        raise InvalidLoginException(
+            detail='Invalid credentials.',
+            status_code=HTTPStatus.BAD_REQUEST
+        )
     else:
         token_jwt = create_access_token({'sub': user.email})
         return Token(
