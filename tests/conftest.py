@@ -9,6 +9,7 @@ from src.service.session import get_session
 from sqlalchemy.pool import StaticPool
 from src.model.user import UserModel
 from src.service.security import get_password_hash
+from src.utils.factory import UserFactory
 
 
 settings = Settings()
@@ -24,12 +25,9 @@ def client(session):
     app.dependency_overrides.clear()
 
 
-@pytest.fixture
-def user(session):
-    password = 'passwordTest'
-    user_mock = UserModel(
-        username='test',
-        email='email@test.com',
+def _get_user(session):
+    password = Settings().PASSWORD_TEST
+    user_mock = UserFactory(
         password=get_password_hash(password)
     )
     session.add(user_mock)
@@ -37,6 +35,14 @@ def user(session):
     session.refresh(user_mock)
     user_mock.clean_password = password
     return user_mock
+
+
+@pytest.fixture
+def user(session): return _get_user(session)
+
+
+@pytest.fixture
+def other_user(session): return _get_user(session)
 
 
 @pytest.fixture

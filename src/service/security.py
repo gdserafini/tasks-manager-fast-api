@@ -4,16 +4,13 @@ from datetime import datetime, timedelta
 from jwt import decode, encode
 from sqlalchemy import select
 from config.settings import Settings
-from fastapi import Depends
-from fastapi.security import OAuth2PasswordBearer
-from sqlalchemy.orm import Session
 from src.model.exceptions import InvalidLoginException
 from src.model.user import UserModel
-from src.service.session import get_session
+from jwt.exceptions import PyJWTError, ExpiredSignatureError
+from src.utils.types import T_Session, T_Token
 
 
 pwd_context = PasswordHash.recommended()
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl='auth/token')
 
 
 def get_password_hash(password: str) -> str:
@@ -39,10 +36,7 @@ def create_access_token(data: dict) -> str:
     )
 
 
-def get_current_user(
-    session: Session = Depends(get_session),
-    token: str = Depends(oauth2_scheme) 
-) -> UserModel:
+def get_current_user(session: T_Session, token: T_Token) -> UserModel:
     try:
         payload = decode(
             token, Settings().SECRET_KEY, 
@@ -50,12 +44,14 @@ def get_current_user(
         )
         email = payload.get('sub')
         if not email:
-            raise InvalidLoginException(detail='Invalid token')
+            raise InvalidLoginException(detail='Invalid token.')
         user_db = session.scalar(
             select(UserModel).where(UserModel.email == email)
         )
         if not user_db:
-            raise InvalidLoginException(detail='User not found')
+            raise InvalidLoginException(detail='User not found.')
         return user_db
-    except Exception as e:
-        raise e
+    except ExpiredSignatureError:
+        raise InvalidLoginException(detail='Expired token.')
+    except PyJWTError:
+        raise InvalidLoginException(detail='Invalid token.')
