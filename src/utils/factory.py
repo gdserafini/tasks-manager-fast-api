@@ -1,5 +1,5 @@
 import factory
-from src.model.user import UserModel
+from src.model.db_schemas import UserModel
 
 
 class UserFactory(factory.Factory):

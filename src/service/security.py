@@ -5,7 +5,7 @@ from jwt import decode, encode
 from sqlalchemy import select
 from config.settings import Settings
 from src.model.exceptions import InvalidLoginException
-from src.model.user import UserModel
+from src.model.db_schemas import UserModel
 from jwt.exceptions import PyJWTError, ExpiredSignatureError
 from src.utils.types import T_Session, T_Token
 

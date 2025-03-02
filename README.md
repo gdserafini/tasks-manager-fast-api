@@ -3,4 +3,4 @@
 API - Gerenciador de Tarefas <br>
 Projeto baseado no curso de FastAPI: https://fastapidozero.dunossauro.com/
 
-A8 - 31:49
+A9 - 26:41

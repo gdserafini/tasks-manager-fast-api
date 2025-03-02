@@ -46,4 +46,14 @@ responses={
             }
         }
     },
+    'unprocessable_entity': {
+        HTTPStatus.UNPROCESSABLE_ENTITY: {
+            'description': 'Unprocessable entiry: Invalid data.',
+            'content': {
+                'application/json': {
+                    'example': {'detail': 'Invalid data passed.'}
+                }
+            }
+        }
+    }
 }

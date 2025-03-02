@@ -3,7 +3,7 @@ from sqlalchemy import select
 from src.model.exceptions import UserAlreadyExistsException, UserNotFoundException
 from src.model.message import Message
 from src.model.user import User
-from src.model.user import UserModel
+from src.model.db_schemas import UserModel
 from sqlalchemy.orm import Session
 from src.service.security import get_password_hash
 
