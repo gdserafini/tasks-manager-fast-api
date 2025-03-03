@@ -24,3 +24,7 @@ class TaskResponse(Task):
     model_config = ConfigDict(
         from_attributes=True, ser_json_timedelta='iso8601'
     )
+
+
+class TasksList(BaseModel):
+    tasks: list[TaskResponse]

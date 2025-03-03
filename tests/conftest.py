@@ -8,7 +8,7 @@ from config.settings import Settings
 from src.service.session import get_session
 from sqlalchemy.pool import StaticPool
 from src.service.security import get_password_hash
-from src.utils.factory import UserFactory
+from src.utils.factory import UserFactory, TaskFactory
 
 
 settings = Settings()
