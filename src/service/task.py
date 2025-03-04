@@ -1,7 +1,8 @@
 from sqlalchemy import select
-from src.model.task import Task, TaskStateEnum
+from src.model.task import Task, TaskStateEnum, TaskUpdate
 from sqlalchemy.orm import Session
 from src.model.db_schemas import TaskModel
+from src.model.exceptions import TaskNotFoundException
 
 
 def create_task_service(
@@ -38,3 +39,39 @@ def get_tasks_service(
         query.offset(offset).limit(limit)
     ).all()
     return tasks_result
+
+
+def delete_task_service(
+    task_id: int, session: Session, 
+    current_user_id: int
+) -> None:
+    task = session.scalar(
+        select(TaskModel).where(
+            TaskModel.user_id == current_user_id,
+            TaskModel.id == task_id
+        )
+    )
+    if not task:
+        raise TaskNotFoundException(task_id=task_id)
+    session.delete(task)
+    session.commit()
+
+
+def patch_task_service(
+    task_id: int, session: Session,
+    current_user_id: int, task: TaskUpdate
+) -> TaskModel:
+    task_db = session.scalar(
+        select(TaskModel).where(
+            TaskModel.user_id == current_user_id,
+            TaskModel.id == task_id
+        )
+    )
+    if not task_db:
+        raise TaskNotFoundException(task_id=task_id)
+    for key, value in task.model_dump(exclude_unset=True).items():
+        setattr(task_db, key, value)
+    session.add(task_db)
+    session.commit()
+    session.refresh(task_db)
+    return task_db

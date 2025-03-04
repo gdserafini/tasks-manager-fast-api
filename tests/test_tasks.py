@@ -36,3 +36,49 @@ def test_get_tasks_list_returns_tasks_200(
     )
     assert response.status_code == HTTPStatus.OK
     assert len(response.json()['tasks']) == len(tasks)
+
+
+def test_delete_task_returns_msg_200(session, client, user, token):
+    task = TaskFactory(user_id=user.id)
+    session.add(task)
+    session.commit()
+    response = client.delete(
+        f'/task/{task.id}',
+        headers={'Authorization': f'Bearer {token}'}
+    )
+    assert response.status_code == HTTPStatus.OK
+    assert response.json() == {
+        'message': 'Task has been deleted successfully.'
+    }
+
+
+def test_delete_task_not_found_404(client, token):
+    response = client.delete(
+        '/task/999',
+        headers={'Authorization': f'Bearer {token}'}
+    )
+    assert response.status_code == HTTPStatus.NOT_FOUND
+
+
+def test_patch_task_returns_task_200(
+    session, client, user, token
+) -> None:
+    task = TaskFactory(user_id=user.id)
+    session.add(task)
+    session.commit()
+    response = client.patch(
+        f'task/{task.id}',
+        json={'title': 'NEW'},
+        headers={'Authorization': f'Bearer {token}'}
+    )
+    assert response.status_code == HTTPStatus.OK
+    assert response.json()['title'] == 'NEW'
+
+
+def test_patch_task_not_found_returns_404(client,token) -> None:
+    response = client.patch(
+        'task/999',
+        json={'title': 'NEW'},
+        headers={'Authorization': f'Bearer {token}'}
+    )
+    assert response.status_code == HTTPStatus.NOT_FOUND

@@ -28,3 +28,9 @@ class TaskResponse(Task):
 
 class TasksList(BaseModel):
     tasks: list[TaskResponse]
+
+
+class TaskUpdate(BaseModel):
+    title: str | None = None
+    description: str | None = None
+    state: TaskStateEnum | None = None
