@@ -47,3 +47,11 @@ class ForbiddenException(HTTPException): # pragma: no cover
         detail: str = 'Forbidden'
     ):
         super().__init__(status_code=status_code, detail=detail)
+
+
+class DatabaseConnectionError(Exception):
+    def __init__(self, message: str):
+        super().__init__(message)
+
+    def __str__(self):
+        return super().__str__()
