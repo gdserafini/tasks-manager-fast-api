@@ -1,15 +1,14 @@
 from fastapi.testclient import TestClient
 import pytest
 from app import app
-from src.model.user import table_registry
+from src.model.db_schemas import table_registry
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from config.settings import Settings
 from src.service.session import get_session
 from sqlalchemy.pool import StaticPool
-from src.model.user import UserModel
 from src.service.security import get_password_hash
-from src.utils.factory import UserFactory
+from src.utils.factory import UserFactory, TaskFactory
 
 
 settings = Settings()

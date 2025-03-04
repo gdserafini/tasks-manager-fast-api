@@ -12,6 +12,16 @@ class UserNotFoundException(HTTPException): # pragma: no cover
         super().__init__(status_code=status_code, detail=msg)
 
 
+class TaskNotFoundException(HTTPException): # pragma: no cover
+    def __init__(self, 
+        status_code: int = HTTPStatus.NOT_FOUND, 
+        datail: str = 'Task not found.',
+        task_id: int = None
+    ):
+        msg = f'Task not found: id = {task_id}'
+        super().__init__(status_code=status_code, detail=msg)
+
+
 class UserAlreadyExistsException(HTTPException): # pragma: no cover
     def __init__(self, 
         status_code: int = HTTPStatus.BAD_REQUEST, 

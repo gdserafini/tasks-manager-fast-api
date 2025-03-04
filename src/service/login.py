@@ -1,6 +1,6 @@
 from sqlalchemy import select
 from src.model.exceptions import InvalidLoginException
-from src.model.user import UserModel
+from src.model.db_schemas import UserModel
 from sqlalchemy.orm import Session
 from src.service.security import verify_password, create_access_token
 from fastapi.security import OAuth2PasswordRequestForm
