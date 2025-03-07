@@ -1,6 +1,6 @@
 from fastapi.testclient import TestClient
 import pytest
-from app import app
+from tests.app_test import app_test
 from src.model.db_schemas import table_registry
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
@@ -18,10 +18,10 @@ settings = Settings()
 def client(session):
     def get_session_override():
         return session
-    with TestClient(app) as client:
-        app.dependency_overrides[get_session] = get_session_override
+    with TestClient(app_test) as client:
+        app_test.dependency_overrides[get_session] = get_session_override
         yield client
-    app.dependency_overrides.clear()
+    app_test.dependency_overrides.clear()
 
 
 def _get_user(session):
