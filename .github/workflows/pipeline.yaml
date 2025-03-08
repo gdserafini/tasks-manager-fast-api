@@ -6,9 +6,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Copy files
+        uses: actions/checkout@v3
+
       - name: Install Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+
       - name: Configure tests environment
         run: source tests.sh
+        
+      - name: Run tests
+        run: task test
