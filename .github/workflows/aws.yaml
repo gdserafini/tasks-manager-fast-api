@@ -1,4 +1,4 @@
-name: Pipeline
+name: AWS
 on: [push, pull_request]
 
 jobs:
